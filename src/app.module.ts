@@ -13,6 +13,9 @@ import { videoProcessor } from './app.worker';
       },
       defaultJobOptions: {
         attempts: 3,
+        removeOnComplete: 1000,
+        removeOnFail: 3000,
+        backoff: 2000,
       },
     }),
     BullModule.registerQueue({

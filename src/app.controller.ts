@@ -10,11 +10,23 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Post('/upload')
-  async uploadVideo(@Body() body: { fileName: string; fileType: string }) {
-    const message = await this.appService.addVideoToQueue(
+  @Post('/process')
+  async processVideo(@Body() body: { fileName: string; fileType: string }) {
+    const message = await this.appService.processVideo(
       body.fileName,
       body.fileType,
+    );
+    return message;
+  }
+
+  @Post('/compress')
+  async compressVideo(
+    @Body() body: { fileName: string; fileType: string; fileContent: string },
+  ) {
+    const message = await this.appService.compressVideo(
+      body.fileName,
+      body.fileType,
+      body.fileContent,
     );
     return message;
   }

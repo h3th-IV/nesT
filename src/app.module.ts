@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { BullModule } from '@nestjs/bullmq';
 import { videoProcessor } from './app.worker';
+import { VideoQueueEventListener } from './app.queue.events';
 
 @Module({
   imports: [
@@ -23,6 +24,6 @@ import { videoProcessor } from './app.worker';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService, videoProcessor],
+  providers: [AppService, videoProcessor, VideoQueueEventListener],
 })
 export class AppModule {}

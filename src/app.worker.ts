@@ -1,33 +1,77 @@
+/* eslint-disable @typescript-eslint/no-base-to-string */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+
 import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 
-@Processor('videos', { concurrency: 5 }) //set other options here; such as concurrency eg @Processor('queuename', {option1: 'value'})
-//we can also use rate limiting as one of the options here, we can specify how many jobs to run in a duration
+@Processor('videos', { concurrency: 2 })
+
+/*set other options here; such as concurrency eg @Processor('queuename', {option1: 'value'})
+we can also use rate limiting as one of the options here, we can specify how many jobs to run in a duration */
 export class videoProcessor extends WorkerHost {
+  /*
+  the process method is used to process; use switch cases(on the job name) to perform different processing request
+  */
+
   async process(job: Job) {
-    //use job steps; assume 3 step to process a video
-    const jobSteps = 5;
+    //switch case to carry out different jobs
+    switch (job.name) {
+      case 'process':
+        console.log('Starting video processing.');
+        await this.processVideo(job);
+        break;
+
+      case 'compress':
+        console.log('starting video compressing.');
+        await this.processVideo(job);
+        break;
+
+      default:
+        console.log(`Job name is not recognized: ${job.name}`);
+        break;
+    }
+  }
+
+  async processVideo(job: Job) {
+    const totalSteps = 5;
     let step = 1;
-    let progress;
-    for (step; step <= jobSteps - 1; step++) {
+    let progress: string | number | boolean | object;
+
+    if (job.data.fileType !== 'mp4') {
+      throw new Error(`Video file corrupted: jobId: ${job.id}`);
+    }
+
+    //use job steps; assume 3 step to process a video
+    for (step; step <= totalSteps - 1; step++) {
       //simulate some kind of work being done
       await new Promise((resole) => setTimeout(resole, 3000));
 
-      //calc progress
-      progress = Math.round((step / jobSteps) * 100);
+      //calculate the  progress
+      progress = Math.round((step / totalSteps) * 100);
 
       //update the job progress
       await job.updateProgress(progress);
     }
-    const video = job.data;
-    if (video.fileType !== 'mp4') {
+    progress = Math.round((step / totalSteps) * 100);
+    await job.updateProgress(progress);
+  }
+
+  async compressVideo(job: Job) {
+    let progress: string | number | boolean | object;
+
+    if (job.data.fileType !== 'mp4') {
       throw new Error(`Video file corrupted: jobId: ${job.id}`);
     }
-    console.log('steps in for: ', step);
-    progress = Math.round((step / jobSteps) * 100);
+    let step = 1;
+    progress = Math.round((step / 2) * 100);
+
+    job.data.fileContent.replaceAll(' ', '');
+    step += 1;
+
+    progress = Math.round((step / 2) * 100);
     await job.updateProgress(progress);
-    
-    return 'Job processed successfully';
   }
 
   /*

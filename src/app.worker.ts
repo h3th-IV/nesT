@@ -29,5 +29,6 @@ export class videoProcessor extends WorkerHost {
   @OnWorkerEvent('failed')
   onFailed(job: Job) {
     console.log(`Job with id ${job.id} failed to process`);
+    console.log(`Attempt made: ${job.attemptsMade}`);
   }
 }

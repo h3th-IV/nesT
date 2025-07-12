@@ -15,7 +15,7 @@ import { videoProcessor } from './app.worker';
         attempts: 3,
         removeOnComplete: 1000,
         removeOnFail: 3000,
-        backoff: 2000,
+        backoff: 2000, //after every failure wait two seconds before retry, if concurrency quota isn't full
       },
     }),
     BullModule.registerQueue({
